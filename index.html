@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Display</title>
+    <style>
+       
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1  style="text-align:center;">Product Display</h1>
+    <table id="productTable">
+        <thead>
+            <tr>
+                <th>Subcategory</th>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Popularity</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('https://s3.amazonaws.com/open-to-cors/assignment.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => displayProducts(data.products))
+                .catch(error => console.error('Error fetching data:', error.message));
+        });
+
+        function displayProducts(products) {
+            console.log('Received data:', products);
+
+            if (!products || typeof products !== 'object') {
+                console.error('Error: Received data is not in the expected format.');
+                return;
+            }
+
+            // Extract product array from the object
+            const productList = Object.values(products);
+
+            // Sort products based on descending popularity
+            productList.sort((a, b) => b.popularity - a.popularity);
+
+            const tableBody = document.querySelector('#productTable tbody');
+            productList.forEach(product => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = product.subcategory;
+                row.insertCell(1).textContent = product.title;
+                row.insertCell(2).textContent = product.price;
+                row.insertCell(3).textContent = product.popularity;
+            });
+        }
+    </script>
+</body>
+</html>
